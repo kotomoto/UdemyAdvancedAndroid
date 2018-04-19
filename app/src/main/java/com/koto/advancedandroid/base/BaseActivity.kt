@@ -29,4 +29,12 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         outState?.putString(INSTANCE_ID_KEY, instanceId)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (isFinishing) {
+            Injector.clearComponent(this)
+        }
+    }
 }
