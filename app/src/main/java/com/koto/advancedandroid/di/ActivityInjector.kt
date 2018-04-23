@@ -15,11 +15,11 @@ import dagger.android.AndroidInjector
 
 class ActivityInjector
 @Inject
-internal constructor(private val activityInjectors: Map<Class<out Activity>, @JvmSuppressWildcards Provider<AndroidInjector.Factory<out Activity>>>) {
+constructor(private val activityInjectors: Map<Class<out Activity>, @JvmSuppressWildcards Provider<AndroidInjector.Factory<out Activity>>>) {
 
     private val cache = HashMap<String, AndroidInjector<out Activity>>()
 
-    internal fun inject(activity: Activity) {
+    fun inject(activity: Activity) {
         if (activity !is BaseActivity) {
             throw IllegalArgumentException("Activity must extend BaseActivity")
         }
@@ -46,7 +46,7 @@ internal constructor(private val activityInjectors: Map<Class<out Activity>, @Jv
     }
 
     companion object {
-        internal operator fun get(context: Context): ActivityInjector {
+        fun get(context: Context): ActivityInjector {
             return (context.applicationContext as MyApplication).activityInjector
         }
     }
