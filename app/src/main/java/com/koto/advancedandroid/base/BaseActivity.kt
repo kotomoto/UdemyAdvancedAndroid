@@ -11,6 +11,7 @@ import com.bluelinelabs.conductor.Router
 import com.koto.advancedandroid.R
 import com.koto.advancedandroid.di.Injector
 import com.koto.advancedandroid.di.ScreenInjector
+import com.koto.advancedandroid.ui.ScreenNavigator
 import java.util.*
 import javax.inject.Inject
 
@@ -28,6 +29,9 @@ abstract class BaseActivity : AppCompatActivity() {
     @Inject
     lateinit var screenInjector: ScreenInjector
 
+    @Inject
+    lateinit var screenNavigator: ScreenNavigator
+
     override fun onCreate(savedInstanceState: Bundle?) {
         instanceId = if (savedInstanceState != null) {
             savedInstanceState.getString(INSTANCE_ID_KEY)
@@ -42,6 +46,7 @@ abstract class BaseActivity : AppCompatActivity() {
                 ?: throw NullPointerException("Activity must have a view with id: screen_container")
 
         router = Conductor.attachRouter(this, screenContainer, savedInstanceState)
+        screenNavigator.initWithRouter(router, initialScreen())
         monitorBackStack()
 
         super.onCreate(savedInstanceState)
@@ -50,13 +55,23 @@ abstract class BaseActivity : AppCompatActivity() {
     @LayoutRes
     protected abstract fun layoutRes(): Int
 
+    protected abstract fun initialScreen(): Controller
+
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         outState?.putString(INSTANCE_ID_KEY, instanceId)
     }
 
+    override fun onBackPressed() {
+        if (!screenNavigator.pop()) {
+            super.onBackPressed()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+
+        screenNavigator.clear()
 
         if (isFinishing) {
             Injector.clearComponent(this)
